@@ -1,0 +1,120 @@
+type Token @entity {
+  id: ID!
+  decimal: Int
+  name: String
+}
+
+type Account @entity {
+  id: ID!
+  specVersion: Int
+
+  tradeTransferOut: [TradeTransfer] @derivedFrom(field: "accountFrom")
+  tradeTransferIn: [TradeTransfer] @derivedFrom(field: "accountTo")
+}
+
+type Pool @entity {
+  id: ID!
+  specVersion: Int
+  sharedAsset: Token!
+  token0: Token!
+  token1: Token!
+  swapActions: [SwapAction] @derivedFrom(field: "xykTradePool")
+  assetsVolume: [PoolAssetVolume] @derivedFrom(field: "pool")
+}
+
+type SwapAction @entity {
+  id: ID!
+  isSuccess: Int!
+  timestamp: BigInt!
+  block: String!
+  type: String!
+
+  token0: Token
+  token1: Token
+
+  account: Account
+
+  directTrades: [TradeTransfer] @derivedFrom(field: "swapAction")
+  xykTradePool: Pool
+}
+
+type TradeTransfer @entity {
+  id: ID!
+  isSuccess: Int!
+  timestamp: BigInt!
+  block: String!
+  swapAction: SwapAction!
+
+  accountTo: Account!
+  accountFrom: Account!
+
+  type: String!
+  path: String!
+  token0: String!
+  token1: String!
+  token0Input: String!
+  token1Input: String!
+  result: String!
+}
+
+
+type PoolAssetVolume @entity {
+  id: ID!
+  pool: Pool!
+  timestamp: BigInt!
+  token0Amount: BigInt
+  token1Amount: BigInt
+  sharedAssetAmount: BigInt
+  marketCap: BigInt
+  tradeAmount: BigInt
+}
+
+type AssetPrice @entity {
+  id: ID!
+  token0: Token
+  token1: Token
+  pairName: String!
+  prices: AssetPriceInTime
+}
+
+type AssetPriceInTime @entity {
+  id: ID!
+  timestamp: BigInt!
+  price: BigInt
+}
+
+# ----- Staking rewards -----
+
+type SumReward @entity{
+
+  id: ID! # AccountId
+
+  accountReward: BigInt!
+
+  accountSlash: BigInt!
+
+  accountTotal: BigInt!
+}
+
+# in early stage of kusama, some validators didn't need to bond to start staking
+type NoBondRecordAccount @entity {
+  id: ID! # AccountId
+
+  firstRewardAt: Int!
+}
+
+
+type StakingReward @entity{
+  id: ID!
+  address: String!
+  balance: BigInt!
+  date: DateTime!
+}
+
+
+type StakingSlash @entity{
+  id: ID! # AccountId
+  address: String!
+  balance: BigInt!
+  date: DateTime!
+}
