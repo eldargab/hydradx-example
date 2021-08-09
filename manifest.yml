@@ -28,6 +28,10 @@ mappings:
   eventHandlers:
     - event: staking.Bonded
       handler: handleBond
+    - event: staking.Reward
+      handler: handleReward
+    - event: staking.Slash
+      handler: handleSlash
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
