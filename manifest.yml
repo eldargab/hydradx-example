@@ -18,6 +18,7 @@ typegen:
     - staking.Reward
     - staking.Slash
   customTypes:
+    lib: todo--define-types # since we don't use custom types in mappings, we can supply a stub here
     typedefsLoc: types.json
   outDir: types
 
