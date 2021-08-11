@@ -12,3 +12,60 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
+
+  indexer:
+    image: subsquid/hydra-indexer:4
+    restart: unless-stopped
+    environment:
+      - INDEXER_WORKERS=1
+      - DB_NAME=indexer
+      - DB_HOST=db
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_PORT=${DB_PORT}
+      - REDIS_URI=redis://redis:6379/0
+      - BLOCK_HEIGHT=0 # starting block height
+      - WS_PROVIDER_ENDPOINT_URI=wss://archive.snakenet.hydradx.io
+      - TYPES_JSON=types.json
+      - TYPES_ALIAS=typesAlias.json
+    volumes:
+      - ./types.json:/hydra/packages/hydra-indexer/types.json
+      - ./typesAlias.json:/hydra/packages/hydra-indexer/typesAlias.json
+    depends_on:
+      - db
+    command: >
+      sh -c "yarn db:bootstrap && yarn start:prod"
+
+  indexer-gateway:
+    image: subsquid/hydra-indexer-gateway:4
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - db
+      - indexer-status-service
+      - indexer
+    ports:
+      - "4010:8080"
+    environment:
+      - DEV_MODE=true
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=db
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_PORT=${DB_PORT}
+      - HYDRA_INDEXER_STATUS_SERVICE=http://indexer-status-service:8081/status
+
+  indexer-status-service:
+    image: subsquid/hydra-indexer-status-service:4
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      REDIS_URI: redis://redis:6379/0
+      PORT: 8081
+
+  redis:
+    image: redis:6.0-alpine
+    restart: always
+    ports:
+      - "6379"
