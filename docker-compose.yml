@@ -22,7 +22,7 @@ services:
       - DB_HOST=db
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
-      - DB_PORT=${DB_PORT}
+      - DB_PORT=5432
       - REDIS_URI=redis://redis:6379/0
       - BLOCK_HEIGHT=0 # starting block height
       - WS_PROVIDER_ENDPOINT_URI=wss://archive.snakenet.hydradx.io
@@ -48,11 +48,11 @@ services:
       - "4010:8080"
     environment:
       - DEV_MODE=true
-      - DB_NAME=${DB_NAME}
+      - DB_NAME=indexer
       - DB_HOST=db
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
-      - DB_PORT=${DB_PORT}
+      - DB_PORT=5432
       - HYDRA_INDEXER_STATUS_SERVICE=http://indexer-status-service:8081/status
 
   indexer-status-service:
